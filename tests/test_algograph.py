@@ -6,7 +6,16 @@ import pytest
 
 @pytest.fixture
 def minimal():
-    return 'start; end', 'digraph {\n\tstart -> end\n}'
+    return 'start; end', \
+        '\n'.join(line[12:] for line in \
+        '''
+            digraph {
+                start, end [shape=box style=rounded]
+                node [shape=box]
+
+                start -> end
+            }
+        '''.splitlines()[1:-1])
 
 @pytest.fixture
 def complete():
