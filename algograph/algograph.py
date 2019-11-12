@@ -1,19 +1,128 @@
+import itertools
 
-TO = ' -> '
+TO = '->'
+SPACE = ' '
+INDENT = ' ' * 4
+COLON = ':'
+SEMI = ';'
+COMMA = ', '
+KEYWORDS = set('if else'.split())
+IF = 'if'
+YES = '[label=yes]'
+NO = '[label=no]'
 
-def iterlines(algorithm):
-    for line in algorithm.splitlines():
-        yield from line.split('; ')
+DIGRAPH_BEGIN = 'digraph {'
+DIGRAPH_END = '}'
 
-def algo2dot(algorithm):
-    dot = ['digraph {']
-    lines = iterlines(algorithm)
-    dot.append('\t' + next(lines))
+
+def itertoken(algorithm):
+    for sym in ':;)':
+        algorithm = algorithm.replace(sym, ' ' + sym)
+
+    for sym in '(':
+        algorithm = algorithm.replace(sym, sym + ' ')
+
+    lines = [line for line in algorithm.splitlines() if line.strip()]
+    old = len(list(itertools.takewhile(str.isspace, lines[0].expandtabs())))
+    level = 0
 
     for line in lines:
-        dot[-1] += TO + line
-        dot.append('\t' + line)
+        indent = len(list(itertools.takewhile(str.isspace, line.expandtabs())))
+        if indent > old:
+            level += 1
+        elif indent < old:
+            level -= 1
 
-    del dot[-1]
-    dot.append('}')
-    return '\n'.join(dot)
+        tokens = line.strip().split()
+        colon_inline = False
+
+        for token in tokens:
+            if token == COLON:
+                yield level, 'COLON', None
+                level += 1
+                colon_inline = True
+
+            elif token == SEMI:
+                yield level, 'SEMI', None
+
+            elif token in KEYWORDS:
+                yield level, token.upper(), None
+
+            else:
+                yield level, 'ID', token
+
+        if colon_inline:
+            level -= 1
+
+        old = indent
+
+
+def algo2dot(algorithm):
+    dot = []
+
+    tokens = itertoken(algorithm)
+
+    previous = 0, None, None
+    branching = []
+    branch = None
+    types = {
+        'terminator': [],
+        'decision': []
+    }
+
+    while True:
+        try:
+            level, token, value = next(tokens)
+        except StopIteration:
+            break
+
+        if token == 'IF':
+            _, _, value = next(tokens)
+            branching.append((level, token, value))
+            types['decision'].append(value)
+            branch = True
+            next(tokens)    # COLON
+
+        elif token == 'ELSE':
+            previous, branching[-1] = branching[-1], previous
+            branch = False
+            next(tokens)    # COLON
+            continue
+
+        elif token == 'SEMI':
+            continue
+
+        if level < previous[0]:
+            dot.append((branching.pop()[2], TO, value))
+
+        if branch and previous[1] == 'IF':
+            dot.append((previous[2], TO, value, YES))
+            branch = None
+
+        elif branch is False:
+            dot.append((previous[2], TO, value, NO))
+            branch = None
+
+        else:
+            dot.append((previous[2], TO, value))
+
+        previous = level, token, value
+
+    del dot[0]
+    types['terminator'].append(dot[0][0])
+    types['terminator'].append(dot[-1][2])
+
+    dot = [INDENT + SPACE.join(line) for line in dot]
+    for type_ in 'terminator decision'.split():
+        types[type_] = COMMA.join(types[type_])
+
+    header = [INDENT + '{} [shape=box style=rounded]'.format(types['terminator']),
+              INDENT + 'node [shape=box]'
+    ]
+    if types['decision']:
+        header.append(
+              INDENT + '{} [shape=diamond]'.format(types['decision'])
+        )
+    header.append('')
+
+    return '\n'.join([DIGRAPH_BEGIN] + header + dot + [DIGRAPH_END])
