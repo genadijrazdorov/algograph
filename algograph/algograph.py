@@ -86,8 +86,6 @@ def itertoken(algorithm):
 def algo2dot(algorithm):
     dot = []
 
-    tokens = itertoken(algorithm)
-
     previous = 0, None, None
     branching = []
     branch = None
@@ -96,32 +94,37 @@ def algo2dot(algorithm):
         'decision': []
     }
 
-    while True:
-        try:
-            level, token, value = next(tokens)
-        except StopIteration:
-            break
+    for level, token, value in itertoken(algorithm):
+        if token != ELIF and token != ELSE and level < previous[0]:
+            poped = branching.pop()
+            if poped[1] == IF or poped[1] == ELIF:
+                dot.append((poped[2], TO, value, NO))
+            else:
+                dot.append((poped[2], TO, value))
 
-        if token == 'IF':
-            _, _, value = next(tokens)
+        if token == IF:
             branching.append((level, token, value))
             types['decision'].append(value)
             branch = True
-            next(tokens)    # COLON
+            dot.append((previous[2], TO, value))
+            previous = level, token, value
+            continue
 
-        elif token == 'ELSE':
+        elif token == ELSE:
             previous, branching[-1] = branching[-1], previous
             branch = False
-            next(tokens)    # COLON
             continue
 
-        elif token == 'SEMI':
+        elif token == ELIF:
+            previous, branching[-1] = branching[-1], previous
+            branching.append((level, token, value))
+            types['decision'].append(value)
+            branch = True
+            dot.append((previous[2], TO, value, NO))
+            previous = level, token, value
             continue
 
-        if level < previous[0]:
-            dot.append((branching.pop()[2], TO, value))
-
-        if branch and previous[1] == 'IF':
+        if branch:
             dot.append((previous[2], TO, value, YES))
             branch = None
 
@@ -133,6 +136,9 @@ def algo2dot(algorithm):
             dot.append((previous[2], TO, value))
 
         previous = level, token, value
+
+    for previous in branching:
+        dot.append((previous[2], TO, value))
 
     del dot[0]
     types['terminator'].append(dot[0][0])
