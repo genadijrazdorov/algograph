@@ -3,24 +3,29 @@ from algograph import algo2dot
 
 import pytest
 
+def lstrip(string):
+    string = string.expandtabs()
+    lines = iter(string.splitlines())
+    line = next(lines)
+    while not line.strip():
+        line = next(lines)
+    indent = len(line) - len(line.lstrip())
+    return '\n'.join(line[indent:] for line in string.splitlines()[1:-1])
 
 @pytest.fixture
 def minimal():
-    return 'start; end', \
-        '\n'.join(line[12:] for line in \
-        '''
+    return 'start; end', lstrip('''
             digraph {
                 start, end [shape=box style=rounded]
                 node [shape=box]
 
                 start -> end
             }
-        '''.splitlines()[1:-1])
+    ''')
 
 @pytest.fixture
 def complete():
-    return '\n'.join(line[12:] for line in \
-        '''
+    return lstrip('''
             start
             middle
             if question:
@@ -28,9 +33,7 @@ def complete():
             else:
                 no
             end
-        '''.splitlines()[1:-1]), \
-        '\n'.join(line[12:] for line in \
-        '''
+        '''), lstrip('''
             digraph {
                 start, end [shape=box style=rounded]
                 node [shape=box]
