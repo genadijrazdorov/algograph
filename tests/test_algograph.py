@@ -3,6 +3,14 @@ from algograph import algo2dot
 
 import pytest
 
+def lstrip(string):
+    string = string.expandtabs()
+    lines = iter(string.splitlines())
+    line = next(lines)
+    while not line.strip():
+        line = next(lines)
+    indent = len(line) - len(line.lstrip())
+    return '\n'.join(line[indent:] for line in string.splitlines()[1:-1])
 
 @pytest.fixture
 def minimal():
