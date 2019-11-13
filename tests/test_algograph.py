@@ -46,7 +46,32 @@ def complete():
                 yes -> end
                 no -> end
             }
-        '''.splitlines()[1:-1])
+        ''')
+
+@pytest.fixture
+def elif_():
+    return lstrip('''
+                        start
+                        if question:
+                            yes
+                        elif other_question:
+                            other_yes
+                        end
+        '''), lstrip('''
+            digraph {
+                start, end [shape=box style=rounded]
+                node [shape=box]
+                question, other_question [shape=diamond]
+
+                start -> question
+                question -> yes [label=yes]
+                question -> other_question [label=no]
+                other_question -> other_yes [label=yes]
+                other_question -> end [label=no]
+                other_yes -> end
+                yes -> end
+            }
+        ''')
 
 
 class TestAlgograph:
@@ -60,4 +85,8 @@ class TestAlgograph:
 
     def test_complete(self, complete):
         algo, dot = complete
+        assert algo2dot(algo) == dot
+
+    def test_elif(self, elif_):
+        algo, dot = elif_
         assert algo2dot(algo) == dot

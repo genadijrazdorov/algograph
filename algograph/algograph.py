@@ -3,11 +3,17 @@ import itertools
 TO = '->'
 SPACE = ' '
 INDENT = ' ' * 4
+
 COLON = ':'
 SEMI = ';'
+PUNCT = {COLON, SEMI}
+
+IF = 'IF'
+ELSE = 'ELSE'
+ELIF = 'ELIF'
+KEYWORDS = {IF, ELSE, ELIF}
+
 COMMA = ', '
-KEYWORDS = set('if else'.split())
-IF = 'if'
 YES = '[label=yes]'
 NO = '[label=no]'
 
@@ -15,13 +21,7 @@ DIGRAPH_BEGIN = 'digraph {'
 DIGRAPH_END = '}'
 
 
-def itertoken(algorithm):
-    for sym in ':;)':
-        algorithm = algorithm.replace(sym, ' ' + sym)
-
-    for sym in '(':
-        algorithm = algorithm.replace(sym, sym + ' ')
-
+def iterrawtoken(algorithm):
     lines = [line for line in algorithm.splitlines() if line.strip()]
     old = len(list(itertools.takewhile(str.isspace, lines[0].expandtabs())))
     level = 0
@@ -37,19 +37,23 @@ def itertoken(algorithm):
         colon_inline = False
 
         for token in tokens:
-            if token == COLON:
-                yield level, 'COLON', None
-                level += 1
-                colon_inline = True
+            punct = None
+            if token[-1] in PUNCT:
+                token, punct = token[:-1], token[-1]
 
-            elif token == SEMI:
-                yield level, 'SEMI', None
-
-            elif token in KEYWORDS:
+            if token.upper() in KEYWORDS:
                 yield level, token.upper(), None
 
             else:
                 yield level, 'ID', token
+
+            if punct == COLON:
+                yield level, 'PUNCT', COLON
+                level += 1
+                colon_inline = True
+
+            elif punct == SEMI:
+                yield level, 'PUNCT', SEMI
 
         if colon_inline:
             level -= 1
@@ -57,10 +61,30 @@ def itertoken(algorithm):
         old = indent
 
 
+def itertoken(algorithm):
+    tokens = iterrawtoken(algorithm)
+
+    while True:
+        try:
+            level, token, value = next(tokens)
+        except StopIteration:
+            break
+
+        if token == IF or token == ELIF:
+            value = next(tokens)[2]
+            next(tokens)    # COLON
+
+        elif token == ELSE:
+            next(tokens)    # COLON
+
+        elif token == 'PUNCT':
+            continue
+
+        yield level, token, value
+
+
 def algo2dot(algorithm):
     dot = []
-
-    tokens = itertoken(algorithm)
 
     previous = 0, None, None
     branching = []
@@ -70,32 +94,37 @@ def algo2dot(algorithm):
         'decision': []
     }
 
-    while True:
-        try:
-            level, token, value = next(tokens)
-        except StopIteration:
-            break
+    for level, token, value in itertoken(algorithm):
+        if token != ELIF and token != ELSE and level < previous[0]:
+            poped = branching.pop()
+            if poped[1] == IF or poped[1] == ELIF:
+                dot.append((poped[2], TO, value, NO))
+            else:
+                dot.append((poped[2], TO, value))
 
-        if token == 'IF':
-            _, _, value = next(tokens)
+        if token == IF:
             branching.append((level, token, value))
             types['decision'].append(value)
             branch = True
-            next(tokens)    # COLON
+            dot.append((previous[2], TO, value))
+            previous = level, token, value
+            continue
 
-        elif token == 'ELSE':
+        elif token == ELSE:
             previous, branching[-1] = branching[-1], previous
             branch = False
-            next(tokens)    # COLON
             continue
 
-        elif token == 'SEMI':
+        elif token == ELIF:
+            previous, branching[-1] = branching[-1], previous
+            branching.append((level, token, value))
+            types['decision'].append(value)
+            branch = True
+            dot.append((previous[2], TO, value, NO))
+            previous = level, token, value
             continue
 
-        if level < previous[0]:
-            dot.append((branching.pop()[2], TO, value))
-
-        if branch and previous[1] == 'IF':
+        if branch:
             dot.append((previous[2], TO, value, YES))
             branch = None
 
@@ -107,6 +136,9 @@ def algo2dot(algorithm):
             dot.append((previous[2], TO, value))
 
         previous = level, token, value
+
+    for previous in branching:
+        dot.append((previous[2], TO, value))
 
     del dot[0]
     types['terminator'].append(dot[0][0])
