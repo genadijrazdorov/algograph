@@ -1,5 +1,6 @@
 # algograph
 
+![Travis (.org)](https://img.shields.io/travis/genadijrazdorov/algograph?logo=travis)
 ![GitHub](https://img.shields.io/github/license/genadijrazdorov/algograph)
 
 Algorithm to graph translator.
