@@ -14,21 +14,18 @@ def lstrip(string):
 
 @pytest.fixture
 def minimal():
-    return 'start; end', \
-        '\n'.join(line[12:] for line in \
-        '''
+    return 'start; end', lstrip('''
             digraph {
                 start, end [shape=box style=rounded]
                 node [shape=box]
 
                 start -> end
             }
-        '''.splitlines()[1:-1])
+    ''')
 
 @pytest.fixture
 def complete():
-    return '\n'.join(line[12:] for line in \
-        '''
+    return lstrip('''
             start
             middle
             if question:
@@ -36,9 +33,7 @@ def complete():
             else:
                 no
             end
-        '''.splitlines()[1:-1]), \
-        '\n'.join(line[12:] for line in \
-        '''
+        '''), lstrip('''
             digraph {
                 start, end [shape=box style=rounded]
                 node [shape=box]
