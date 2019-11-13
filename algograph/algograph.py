@@ -3,11 +3,17 @@ import itertools
 TO = '->'
 SPACE = ' '
 INDENT = ' ' * 4
+
 COLON = ':'
 SEMI = ';'
+PUNCT = {COLON, SEMI}
+
+IF = 'IF'
+ELSE = 'ELSE'
+ELIF = 'ELIF'
+KEYWORDS = {IF, ELSE, ELIF}
+
 COMMA = ', '
-KEYWORDS = set('if else'.split())
-IF = 'if'
 YES = '[label=yes]'
 NO = '[label=no]'
 
@@ -15,13 +21,7 @@ DIGRAPH_BEGIN = 'digraph {'
 DIGRAPH_END = '}'
 
 
-def itertoken(algorithm):
-    for sym in ':;)':
-        algorithm = algorithm.replace(sym, ' ' + sym)
-
-    for sym in '(':
-        algorithm = algorithm.replace(sym, sym + ' ')
-
+def iterrawtoken(algorithm):
     lines = [line for line in algorithm.splitlines() if line.strip()]
     old = len(list(itertools.takewhile(str.isspace, lines[0].expandtabs())))
     level = 0
@@ -37,24 +37,50 @@ def itertoken(algorithm):
         colon_inline = False
 
         for token in tokens:
-            if token == COLON:
-                yield level, 'COLON', None
-                level += 1
-                colon_inline = True
+            punct = None
+            if token[-1] in PUNCT:
+                token, punct = token[:-1], token[-1]
 
-            elif token == SEMI:
-                yield level, 'SEMI', None
-
-            elif token in KEYWORDS:
+            if token.upper() in KEYWORDS:
                 yield level, token.upper(), None
 
             else:
                 yield level, 'ID', token
 
+            if punct == COLON:
+                yield level, 'PUNCT', COLON
+                level += 1
+                colon_inline = True
+
+            elif punct == SEMI:
+                yield level, 'PUNCT', SEMI
+
         if colon_inline:
             level -= 1
 
         old = indent
+
+
+def itertoken(algorithm):
+    tokens = iterrawtoken(algorithm)
+
+    while True:
+        try:
+            level, token, value = next(tokens)
+        except StopIteration:
+            break
+
+        if token == IF or token == ELIF:
+            value = next(tokens)[2]
+            next(tokens)    # COLON
+
+        elif token == ELSE:
+            next(tokens)    # COLON
+
+        elif token == 'PUNCT':
+            continue
+
+        yield level, token, value
 
 
 def algo2dot(algorithm):
