@@ -1,5 +1,7 @@
 # algograph
 
+![GitHub](https://img.shields.io/github/license/genadijrazdorov/algograph)
+
 Algorithm to graph translator.
 
 ## Usage example
