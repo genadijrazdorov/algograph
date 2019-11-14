@@ -105,14 +105,16 @@ def algo2dot(algorithm):
 
     for level, token, value in itertoken(algorithm):
         if token not in {ELIF, ELIF_NOT, ELSE} and level < previous[0]:
-            poped = branching.pop()
-            ## if poped[1] == IF or poped[1] == ELIF:
-            if poped[1] in {IF, ELIF}:
-                dot.append((poped[2], TO, value, NO))
-            elif poped[1] in {IF_NOT, ELIF_NOT}:
-                dot.append((poped[2], TO, value, YES))
+            last_branch = branching.pop()
+
+            if last_branch[1] in {IF, ELIF}:
+                dot.append((last_branch[2], TO, value, NO))
+
+            elif last_branch[1] in {IF_NOT, ELIF_NOT}:
+                dot.append((last_branch[2], TO, value, YES))
+
             else:
-                dot.append((poped[2], TO, value))
+                dot.append((last_branch[2], TO, value))
 
         if token in {IF, IF_NOT}:
             branching.append((level, token, value))
@@ -132,16 +134,19 @@ def algo2dot(algorithm):
 
         elif token in {ELIF, ELIF_NOT}:
             previous, branching[-1] = branching[-1], previous
-            branching.append((level, token, value))
-            types['decision'].append(value)
             if token == ELIF:
                 branch = True
             else:
                 branch = False
-            if previous[1] == IF:
+
+            if previous[1] in {IF, ELIF}:
                 dot.append((previous[2], TO, value, NO))
-            elif previous[1] == IF_NOT:
+
+            elif previous[1] in {IF_NOT, ELIF_NOT}:
                 dot.append((previous[2], TO, value, YES))
+
+            branching.append((level, token, value))
+            types['decision'].append(value)
             previous = level, token, value
             continue
 
