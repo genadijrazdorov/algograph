@@ -9,9 +9,13 @@ SEMI = ';'
 PUNCT = {COLON, SEMI}
 
 IF = 'IF'
+IF_NOT = 'IF_NOT'
+NOT = 'NOT'
 ELSE = 'ELSE'
 ELIF = 'ELIF'
-KEYWORDS = {IF, ELSE, ELIF}
+ELIF_NOT = 'ELIF_NOT'
+
+KEYWORDS = {IF, NOT, ELSE, ELIF}
 
 COMMA = ', '
 YES = '[label=yes]'
@@ -71,7 +75,12 @@ def itertoken(algorithm):
             break
 
         if token == IF or token == ELIF:
-            value = next(tokens)[2]
+            next_ = next(tokens)
+            if next_[1] == NOT:
+                value = next(tokens)[2]
+                token += '_NOT'
+            else:
+                value = next_[2]
             next(tokens)    # COLON
 
         elif token == ELSE:
@@ -95,17 +104,23 @@ def algo2dot(algorithm):
     }
 
     for level, token, value in itertoken(algorithm):
-        if token != ELIF and token != ELSE and level < previous[0]:
+        if token not in {ELIF, ELIF_NOT, ELSE} and level < previous[0]:
             poped = branching.pop()
-            if poped[1] == IF or poped[1] == ELIF:
+            ## if poped[1] == IF or poped[1] == ELIF:
+            if poped[1] in {IF, ELIF}:
                 dot.append((poped[2], TO, value, NO))
+            elif poped[1] in {IF_NOT, ELIF_NOT}:
+                dot.append((poped[2], TO, value, YES))
             else:
                 dot.append((poped[2], TO, value))
 
-        if token == IF:
+        if token in {IF, IF_NOT}:
             branching.append((level, token, value))
             types['decision'].append(value)
-            branch = True
+            if token == IF:
+                branch = True
+            else:
+                branch = False
             dot.append((previous[2], TO, value))
             previous = level, token, value
             continue
@@ -115,12 +130,18 @@ def algo2dot(algorithm):
             branch = False
             continue
 
-        elif token == ELIF:
+        elif token in {ELIF, ELIF_NOT}:
             previous, branching[-1] = branching[-1], previous
             branching.append((level, token, value))
             types['decision'].append(value)
-            branch = True
-            dot.append((previous[2], TO, value, NO))
+            if token == ELIF:
+                branch = True
+            else:
+                branch = False
+            if previous[1] == IF:
+                dot.append((previous[2], TO, value, NO))
+            elif previous[1] == IF_NOT:
+                dot.append((previous[2], TO, value, YES))
             previous = level, token, value
             continue
 

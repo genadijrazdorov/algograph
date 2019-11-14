@@ -92,6 +92,16 @@ class TestAlgograph:
                             question -> yes [label=yes]
                         ''')
 
+    def test_if_not(self):
+        assert algo2dot(lstrip('''
+                            if not question:
+                                no
+                        ''')) == lstrip('''
+                            question [shape=diamond]
+
+                            question -> no [label=no]
+                        ''')
+
 
     def test_elif(self, elif_):
         algo, dot = elif_
