@@ -1,4 +1,8 @@
 language: python
-install: pip install .
+install: pip install .[test,CI]
 script:
-  - pytest
+  - pytest --cov-report=xml --cov=algograph
+env:
+  - CODECOV_TOKEN=1253c5d5-15c3-44d1-b19a-1f2b4231be0e
+after_success:
+  - codecov
