@@ -1,5 +1,5 @@
 language: python
-install: pip install .[test]
+install: pip install .[test,CI]
 script:
   - pytest --cov-report=xml --cov=algograph
 env:

@@ -139,7 +139,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
+    packages=find_packages(exclude=['contrib', 'docs', 'test']),  # Required
 
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
@@ -168,6 +168,7 @@ setup(
         'dev': ['check-manifest'],
         ## 'test': ['coverage'],
         'test': ['pytest-cov'],
+        'CI': ['codecov']
     },
 
     # If there are data files included in your packages that need to be
