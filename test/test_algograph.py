@@ -50,6 +50,7 @@ def complete():
             question -> no [label=no]
         ''')
 
+
 @pytest.fixture
 def elif_():
     return lstrip('''
@@ -65,6 +66,25 @@ def elif_():
             other_question -> other_yes [label=yes]
         ''')
 
+
+@pytest.fixture
+def elif_elif():
+    return lstrip('''
+            if question:
+                yes
+            elif other_question:
+                other_yes
+            elif another_question:
+                another_yes
+        '''), lstrip('''
+            question, other_question, another_question [shape=diamond]
+
+            question -> yes [label=yes]
+            question -> other_question [label=no]
+            other_question -> other_yes [label=yes]
+            other_question -> another_question [label=no]
+            another_question -> another_yes [label=yes]
+        ''')
 
 class TestAlgograph:
     @pytest.mark.xfail
@@ -102,7 +122,10 @@ class TestAlgograph:
                             question -> no [label=no]
                         ''')
 
-
     def test_elif(self, elif_):
         algo, dot = elif_
+        assert algo2dot(algo) == dot
+
+    def test_elif_elif(self, elif_elif):
+        algo, dot = elif_elif
         assert algo2dot(algo) == dot
