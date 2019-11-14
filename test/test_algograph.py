@@ -35,12 +35,6 @@ def lstrip(string):
     return '\n'.join(line[indent:] for line in string.splitlines()[1:-1])
 
 @pytest.fixture
-def minimal():
-    return 'first; second', lstrip('''
-                first -> second
-    ''')
-
-@pytest.fixture
 def complete():
     return lstrip('''
             middle
@@ -77,13 +71,27 @@ class TestAlgograph:
     def test_fail(self):
         assert False
 
-    def test_start_end(self, minimal):
-        algo, dot = minimal
-        assert algo2dot(algo) == dot
+    def test_minimal(self):
+        assert algo2dot(lstrip('''
+                                first; second
+                ''')) == lstrip('''
+                                first -> second
+                ''')
 
     def test_complete(self, complete):
         algo, dot = complete
         assert algo2dot(algo) == dot
+
+    def test_if(self):
+        assert algo2dot(lstrip('''
+                            if question:
+                                yes
+                        ''')) == lstrip('''
+                            question [shape=diamond]
+
+                            question -> yes [label=yes]
+                        ''')
+
 
     def test_elif(self, elif_):
         algo, dot = elif_
