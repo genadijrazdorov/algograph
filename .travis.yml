@@ -1,4 +1,4 @@
 language: python
-install: pip install .
+install: pip install .[test]
 script:
-  - pytest --cov-report=xml
+  - pytest --cov-report=xml --cov=algograph
