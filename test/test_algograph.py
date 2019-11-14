@@ -3,6 +3,28 @@ from algograph import algo2dot
 
 import pytest
 
+_algo2dot = algo2dot
+
+def algo2dot(algorithm):
+    algorithm = algorithm.splitlines()
+    algorithm.insert(0, 'start')
+    algorithm.append('end')
+    algorithm = '\n'.join(algorithm)
+
+    dot = _algo2dot(algorithm)
+
+    dot = [line[4:] for line in dot.splitlines()[1:-1]]
+
+    dot.remove('start, end [shape=box style=rounded]')
+    dot.remove('node [shape=box]')
+    if not dot[0]:
+        del dot[0]
+
+    dot = [line for line in dot if 'start' not in line]
+    dot = [line for line in dot if 'end' not in line]
+
+    return '\n'.join(dot)
+
 def lstrip(string):
     string = string.expandtabs()
     lines = iter(string.splitlines())
@@ -14,63 +36,39 @@ def lstrip(string):
 
 @pytest.fixture
 def minimal():
-    return 'start; end', lstrip('''
-            digraph {
-                start, end [shape=box style=rounded]
-                node [shape=box]
-
-                start -> end
-            }
+    return 'first; second', lstrip('''
+                first -> second
     ''')
 
 @pytest.fixture
 def complete():
     return lstrip('''
-            start
             middle
             if question:
                 yes
             else:
                 no
-            end
         '''), lstrip('''
-            digraph {
-                start, end [shape=box style=rounded]
-                node [shape=box]
-                question [shape=diamond]
+            question [shape=diamond]
 
-                start -> middle
-                middle -> question
-                question -> yes [label=yes]
-                question -> no [label=no]
-                yes -> end
-                no -> end
-            }
+            middle -> question
+            question -> yes [label=yes]
+            question -> no [label=no]
         ''')
 
 @pytest.fixture
 def elif_():
     return lstrip('''
-                        start
-                        if question:
-                            yes
-                        elif other_question:
-                            other_yes
-                        end
+            if question:
+                yes
+            elif other_question:
+                other_yes
         '''), lstrip('''
-            digraph {
-                start, end [shape=box style=rounded]
-                node [shape=box]
-                question, other_question [shape=diamond]
+            question, other_question [shape=diamond]
 
-                start -> question
-                question -> yes [label=yes]
-                question -> other_question [label=no]
-                other_question -> other_yes [label=yes]
-                other_question -> end [label=no]
-                other_yes -> end
-                yes -> end
-            }
+            question -> yes [label=yes]
+            question -> other_question [label=no]
+            other_question -> other_yes [label=yes]
         ''')
 
 
