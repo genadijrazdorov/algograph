@@ -1,4 +1,4 @@
 language: python
 install: pip install .
 script:
-  - pytest
+  - pytest --cov-report=xml
