@@ -60,19 +60,8 @@ $ algograph algo.py
 
 ## Help
 
-For the complete help try:
+For the console script usage try:
 
 ```
 $ algograph --help
-usage: algograph [-h] [-V] algorithm 
-
-Translates an algorithm to directional graph.
-
-positional arguments:
-algorithm	algorithm file name
-
-optional arguments:
--h, --help	show this help message and exit
--V, --version	show version and exit
-
 ```
