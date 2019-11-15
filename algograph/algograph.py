@@ -104,20 +104,21 @@ def algo2dot(algorithm):
     }
 
     for level, token, value in itertoken(algorithm):
-        if token not in {ELIF, ELIF_NOT, ELSE} and level < previous[0]:
-            last_branch = branching.pop()
+        if token not in {ELIF, ELIF_NOT, ELSE}:
+            for _ in range(previous[0] - level):
+                for last_branch in reversed(branching.pop()):
 
-            if last_branch[1] in {IF, ELIF}:
-                dot.append((last_branch[2], TO, value, NO))
+                    if last_branch[1] in {IF, ELIF}:
+                        dot.append((last_branch[2], TO, value, NO))
 
-            elif last_branch[1] in {IF_NOT, ELIF_NOT}:
-                dot.append((last_branch[2], TO, value, YES))
+                    elif last_branch[1] in {IF_NOT, ELIF_NOT}:
+                        dot.append((last_branch[2], TO, value, YES))
 
-            else:
-                dot.append((last_branch[2], TO, value))
+                    else:
+                        dot.append((last_branch[2], TO, value))
 
         if token in {IF, IF_NOT}:
-            branching.append((level, token, value))
+            branching.append([(level, token, value)])
             types['decision'].append(value)
             if token == IF:
                 branch = True
@@ -128,12 +129,12 @@ def algo2dot(algorithm):
             continue
 
         elif token == ELSE:
-            previous, branching[-1] = branching[-1], previous
+            previous, branching[-1][-1] = branching[-1][-1], previous
             branch = False
             continue
 
         elif token in {ELIF, ELIF_NOT}:
-            previous, branching[-1] = branching[-1], previous
+            previous, branching[-1][-1] = branching[-1][-1], previous
             if token == ELIF:
                 branch = True
             else:
@@ -145,7 +146,7 @@ def algo2dot(algorithm):
             elif previous[1] in {IF_NOT, ELIF_NOT}:
                 dot.append((previous[2], TO, value, YES))
 
-            branching.append((level, token, value))
+            branching[-1].append((level, token, value))
             types['decision'].append(value)
             previous = level, token, value
             continue
