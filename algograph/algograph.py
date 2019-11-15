@@ -164,9 +164,10 @@ def algo2dot(algorithm):
 
         previous = level, token, value
 
-    for branch in branching:
-        for previous in branch:
-            dot.append((previous[2], TO, value))
+    if level == 0:
+        for branch in branching:
+            for previous in branch:
+                dot.append((previous[2], TO, value))
 
     del dot[0]
     types['terminator'].append(dot[0][0])
