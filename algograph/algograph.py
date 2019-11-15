@@ -14,8 +14,9 @@ NOT = 'NOT'
 ELSE = 'ELSE'
 ELIF = 'ELIF'
 ELIF_NOT = 'ELIF_NOT'
+RETURN = 'RETURN'
 
-KEYWORDS = {IF, NOT, ELSE, ELIF}
+KEYWORDS = {IF, NOT, ELSE, ELIF, RETURN}
 
 COMMA = ', '
 YES = '[label=yes]'
@@ -104,6 +105,12 @@ def algo2dot(algorithm):
     }
 
     for level, token, value in itertoken(algorithm):
+        if token == RETURN:
+            types['terminator'].append(previous[2])
+            previous = branching[-1][-1]
+            branch = False
+            continue
+
         if token not in {ELIF, ELIF_NOT, ELSE}:
             for _ in range(previous[0] - level):
                 for last_branch in reversed(branching.pop()):
