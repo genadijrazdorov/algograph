@@ -76,6 +76,7 @@ def elif_elif():
                 other_yes
             elif another_question:
                 another_yes
+            middle
         '''), lstrip('''
             question, other_question, another_question [shape=diamond]
 
@@ -84,6 +85,10 @@ def elif_elif():
             other_question -> other_yes [label=yes]
             other_question -> another_question [label=no]
             another_question -> another_yes [label=yes]
+            another_question -> middle [label=no]
+            other_yes -> middle
+            yes -> middle
+            another_yes -> middle
         ''')
 
 class TestAlgograph:
