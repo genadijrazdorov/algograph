@@ -15,7 +15,14 @@ def algo2dot(algorithm):
 
     dot = [line[4:] for line in dot.splitlines()[1:-1]]
 
-    dot.remove('start, end [shape=box style=rounded]')
+    for i in range(len(dot)):
+        line = dot[i]
+        if line.endswith('[shape=box style=rounded]'):
+            line = line.replace('start, ', '').replace('end', '')
+            dot[i] = line
+            break
+
+    dot.remove(' [shape=box style=rounded]')
     dot.remove('node [shape=box]')
     if not dot[0]:
         del dot[0]
@@ -134,3 +141,15 @@ class TestAlgograph:
     def test_elif_elif(self, elif_elif):
         algo, dot = elif_elif
         assert algo2dot(algo) == dot
+
+    def test_return(self):
+        assert algo2dot(lstrip('''
+                                    if question:
+                                        yes
+                                        return
+        ''')) == lstrip('''
+                                    yes [shape=box style=rounded]
+                                    question [shape=diamond]
+
+                                    question -> yes [label=yes]
+        ''')
