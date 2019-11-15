@@ -18,11 +18,16 @@ def algo2dot(algorithm):
     for i in range(len(dot)):
         line = dot[i]
         if line.endswith('[shape=box style=rounded]'):
-            line = line.replace('start, ', '').replace('end', '')
+            line = line.replace('start, ', '').replace('end ', '')
+            line = line.replace(',', '', 1)
+
             dot[i] = line
             break
 
-    dot.remove(' [shape=box style=rounded]')
+    try:
+        dot.remove('[shape=box style=rounded]')
+    except ValueError:
+        pass
     dot.remove('node [shape=box]')
     if not dot[0]:
         del dot[0]
@@ -147,9 +152,11 @@ class TestAlgograph:
                                     if question:
                                         yes
                                         return
+                                    middle
         ''')) == lstrip('''
                                     yes [shape=box style=rounded]
                                     question [shape=diamond]
 
                                     question -> yes [label=yes]
+                                    question -> middle [label=no]
         ''')
