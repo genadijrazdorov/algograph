@@ -196,7 +196,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'algograph=algograph:main',
+            'algograph=algograph:script',
         ],
     },
 

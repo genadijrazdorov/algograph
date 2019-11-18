@@ -15,7 +15,7 @@ epilog = '''
 Please visit https://github.com/genadijrazdorov/algograph
 '''
 
-def main():
+def script():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=description,
