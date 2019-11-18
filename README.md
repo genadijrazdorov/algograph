@@ -47,6 +47,7 @@ if not system_suitable:
 	    return
 
     elif symptom is peak_misshape:
+	change(suitability_column)
 	return
 
 ```
