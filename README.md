@@ -47,14 +47,7 @@ if not system_suitable:
 	    return
 
     elif symptom is peak_misshape:
-	if peak_widening:
-	    pass
-
-	elif peak_tailing:
-	    pass
-
-	elif peak_fronting:
-	    pass
+	return
 
 ```
 
