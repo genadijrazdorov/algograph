@@ -2,7 +2,7 @@ from .token import TOKEN, _VTOKEN
 
 import re
 
-__all__ = 'Lexer IF IS ELIF ELSE ID LITERAL NEWLINE INDENT DEDENT'.split()
+__all__ = 'Lexer IF IS ELIF ELSE ID LITERAL NEWLINE INDENT DEDENT IGNORE'.split()
 
 
 class IF(TOKEN):
@@ -42,7 +42,7 @@ class DEDENT(_VTOKEN):
 
 
 class IGNORE(_VTOKEN):
-    regex = r'\s*|#.*'
+    regex = r'\s+|#.*'
 
 
 class Lexer:
