@@ -1,4 +1,4 @@
-from algograph.token import TOKEN, _VTOKEN
+from algograph.token import TOKEN, _VTOKEN, _DTOKEN
 
 import pytest
 
@@ -19,7 +19,18 @@ def id_():
     return ID
 
 
-class TestToken:
+@pytest.fixture
+def expr():
+    class EXPR(_DTOKEN):
+        def __init__(self, id_, not_=False):
+            super().__init__(id_, not_)
+            self.ID = id_
+            self.NOT = not_
+
+    return EXPR
+
+
+class TestTOKEN:
     def test__eq__(self, if_):
         assert if_() == if_()
         assert if_() != TOKEN()
@@ -28,10 +39,20 @@ class TestToken:
         assert repr(if_()) == 'IF()'
 
 
-class Test_VToken:
+class Test_VTOKEN:
     def test__eq__(self, id_):
         assert id_('proba') == id_('proba')
         assert id_('proba') != id_('p')
 
     def test__repr__(self, id_):
         assert repr(id_('proba')) == "ID('proba')"
+
+
+class Test_DTOKEN:
+    def test__eq__(self, expr, id_):
+        assert expr(id_('proba')) == expr(id_('proba'))
+        assert expr(id_('proba')) != expr(id_('p'))
+
+    def test__repr__(self, expr, id_):
+        assert repr(expr(id_('proba'))) == "EXPR(ID('proba'), False)"
+

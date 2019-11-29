@@ -2,7 +2,7 @@ from .token import TOKEN, _VTOKEN
 
 import re
 
-__all__ = 'Lexer IF IS ELIF ELSE ID LITERAL NEWLINE INDENT DEDENT IGNORE'.split()
+__all__ = 'Lexer IF IS NOT ELIF ELSE ID LITERAL NEWLINE INDENT DEDENT IGNORE'.split()
 
 
 class IF(TOKEN):
@@ -11,6 +11,10 @@ class IF(TOKEN):
 
 class IS(TOKEN):
     regex = r'\bis\b'
+
+
+class NOT(TOKEN):
+    regex = r'\bnot\b'
 
 
 class ELIF(TOKEN):
