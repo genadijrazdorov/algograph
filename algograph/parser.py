@@ -210,15 +210,25 @@ class Parser:
         elif isinstance(stack[2], IF_STMT):
             node = N(stack[2].EXPR.ID.value)
             yes = N(stack[2].SUITE.tokens[0])
-            for t in stack[2].SUITE.tokens[1:]:
-                yes[N(t.value)] = None
             node[yes] = True
             last[node] = None
             last = node
             del stack[2]
 
         elif isinstance(stack[2], SWITCH):
-            pass
+            node = N(stack[2].IS_EXPR.ID.value)
+            last[node] = None
+            o = N(stack[2].IS_EXPR.EXPR.ID.value)
+            s = N(stack[2].SUITE.tokens[0].ID.value)
+            node[s], n = o, s
+            for o, s in stack[2].ELIF:
+                o = o.EXPR.ID.value
+                s = N(s.tokens[0].ID.value)
+                n[s], n = o, s
+            node[stack[2].ELSE.tokens[0].ID.value] = False
+            last = node
+            del stack[2]
+
 
     def parse(self):
         top = self.last = N('top')
