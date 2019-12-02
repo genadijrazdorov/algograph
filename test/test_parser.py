@@ -59,3 +59,20 @@ class TestParser:
                         }): False
                     })
 
+    def test_if_is(self):
+        assert parse('''
+                     | if s is o1:
+                     |   y1
+                     | elif s is o2:
+                     |   y2
+                     | elif s is o3:
+                     |   y3
+                     | else:
+                     |   n
+                     ''') == \
+                    N('s', {
+                        N('y1'): 'o1',
+                        N('y2'): 'o2',
+                        N('y3'): 'o3',
+                        N('n'): False
+                    })
