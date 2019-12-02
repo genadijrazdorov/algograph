@@ -28,3 +28,34 @@ class TestParser:
                      | if q:
                      |   y
                      ''') == N('q', {N('y'): True})
+
+    def test_if_else(self):
+        assert parse('''
+                     | if q:
+                     |   y
+                     | else:
+                     |   n
+                     ''') == N('q', {N('y'): True, N('n'): False})
+
+    def test_if_elif_elif_else(self):
+        assert parse('''
+                     | if q:
+                     |   y
+                     | elif q2:
+                     |   y2
+                     | elif q3:
+                     |   y3
+                     | else:
+                     |   n
+                     ''') == \
+                    N('q', {
+                        N('y'): True,
+                        N('q2', {
+                            N('y2'): True,
+                            N('q3', {
+                                N('y3'): True,
+                                N('n'): False
+                            }): False
+                        }): False
+                    })
+
