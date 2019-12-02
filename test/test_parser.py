@@ -29,6 +29,22 @@ class TestParser:
                      |   y
                      ''') == N('q', {N('y'): True})
 
+    def test_suite_error(self):
+        with pytest.raises(SyntaxError):
+            parse('''
+                     | if q:
+                     |   y
+                     |  e
+            ''')
+
+    def test_if_error(self):
+        with pytest.raises(SyntaxError):
+            parse('''
+                     | q
+                     |   y
+                     | e
+            ''')
+
     def test_if_else(self):
         assert parse('''
                      | if q:
