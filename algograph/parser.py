@@ -1,7 +1,8 @@
 from .lexer import *
-from .token import _DTOKEN
+from .token import TOKEN, _DTOKEN
 from .node import Node as N
 
+import functools
 
 NEWLINE = NEWLINE()
 IS = IS()
@@ -56,6 +57,35 @@ class IF_STMT(_DTOKEN):
         self.ELSE = else_
 
 
+def reduce_by_rule(rule):
+    if callable(rule):
+        method = rule
+        @functools.wraps(method)
+        def wrapper(self):
+            method(self)
+
+        return wrapper
+
+    else:
+        def _reduce(method):
+            @functools.wraps(method)
+            def wrapper(self):
+                ## if self.stack[-len(rule):] == rule:
+                ##     method(self)
+                for i in range(len(rule)):
+                    r = rule[-i - 1]
+                    t = self.stack[-i - 1]
+                    if isinstance(r, type) and not isinstance(t, r):
+                        break
+                    elif isinstance(r, TOKEN) and t != r:
+                        break
+                else:
+                    method(self)
+            return wrapper
+
+        return _reduce
+
+
 class Parser:
     def __init__(self, algorithm):
         self.algorithm = algorithm
@@ -74,73 +104,100 @@ class Parser:
             COLON   = ":"
         '''
 
+        # ;
+        self._SEMI()
+
+        # ELSE COLON NEWLINE
+        self._ELSE()
+
+        # COLON NEWLINE
+        self._EXPR()
+
+        # NEWLINE
+        self._STMT()
+
+        # IS EXPR
+        self._IS_EXPR()
+
+        # DEDENT
+        self._SUITE()
+
+        # DEDENT ~{ELIF, ELSE}
+        self._IFSWITCH()
+
+
+    @reduce_by_rule([SEMI])
+    def _SEMI(self):
+        self.stack[-1] = NEWLINE
+
+    @reduce_by_rule([ELSE, COLON, NEWLINE])
+    def _ELSE(self):
+        del self.stack[-2:]
+
+    @reduce_by_rule([COLON, NEWLINE])
+    def _EXPR(self):
         stack = self.stack
-        token = stack[-1]
+        id_ = stack[-3]
+        not_ = (stack[-4] == NOT)
+        token = EXPR(id_, not_)
+        stack[-3 - not_:] = [token]
 
-        # SEMI
-        if token == SEMI:
-            token = stack[-1] = NEWLINE
+    @reduce_by_rule([ID, NEWLINE])
+    def _STMT(self):
+        stack = self.stack
+        token = STMT(stack[-2])
+        stack[-2:] = [token]
 
-        # ELSE
-        if stack[-3:] == [ELSE, COLON, NEWLINE]:
-            del stack[-2:]
+    @reduce_by_rule([IS, EXPR])
+    def _IS_EXPR(self):
+        stack = self.stack
+        id_ = stack[-3]
+        token = IS_EXPR(id_, stack[-1])
+        stack[-3:] = [token]
 
-        # EXPR
-        elif stack[-2:] == [COLON, NEWLINE]:
-            id_ = stack[-3]
-            not_ = (stack[-4] == NOT)
-            token = EXPR(id_, not_)
-            stack[-3 - not_:] = [token]
+    @reduce_by_rule([DEDENT])
+    def _SUITE(self):
+        stack = self.stack
+        for i in range(len(stack)):
+            i += 1
+            if isinstance(stack[-i], INDENT):
+                break
+        else:
+            raise SyntaxError
 
-        # STMT
-        elif stack[-1] == NEWLINE and isinstance(stack[-2], ID):
-            token = STMT(stack[-2])
-            stack[-2:] = [token]
+        token = SUITE(*stack[-i + 1: -1])
+        stack[-i:] = [token]
 
-        # IS_EXPR
-        if stack[-2] == IS and isinstance(token, EXPR):
-            id_ = stack[-3]
-            token = IS_EXPR(id_, token)
-            stack[-3:] = [token]
+    @reduce_by_rule
+    def _IFSWITCH(self):
+        stack = self.stack
+        if not (isinstance(stack[-2], SUITE) and stack[-1] not in {ELIF, ELSE}):
+            return
 
-        # SUITE
-        if isinstance(token, DEDENT):
-            for i in range(len(stack)):
-                i += 1
-                if isinstance(stack[-i], INDENT):
-                    break
-            else:
-                raise SyntaxError
+        for i in range(2, len(stack) - 1):
+            if stack[-i] == IF:
+                break
+        else:
+            raise SyntaxError
 
-            token = SUITE(*stack[-i + 1: -1])
-            stack[-i:] = [token]
+        ifswitch = stack[-i: -1]
 
-        # IF/SWITCH
-        if token not in {ELIF, ELSE} and isinstance(stack[-2], SUITE):
-            for i in range(2, len(stack) - 1):
-                if stack[-i] == IF:
-                    break
-            else:
-                raise SytaxError
+        else_ = None
+        if ifswitch[-2] == ELSE:
+            else_ = ifswitch.pop()
+            ifswitch.pop()
 
-            ifswitch = stack[-i: -1]
+        expr = ifswitch[1]
+        suite = ifswitch[2]
+        del ifswitch[:3]
 
-            else_ = None
-            if ifswitch[-2] == ELSE:
-                else_ = ifswitch.pop()
-                ifswitch.pop()
+        elif_ = list(zip(ifswitch[1::3], ifswitch[2::3]))
 
-            expr = ifswitch[1]
-            suite = ifswitch[2]
-            del ifswitch[:3]
+        if isinstance(expr, IS_EXPR):
+            stack[-i: -1] = [SWITCH(expr, suite, elif_, else_)]
 
-            elif_ = list(zip(ifswitch[1::3], ifswitch[2::3]))
-
-            if isinstance(expr, IS_EXPR):
-                stack[-i: -1] = [SWITCH(expr, suite, elif_, else_)]
-
-            else:
-                stack[-i: -1] = [IF_STMT(expr, suite, elif_, else_)]
+        else:
+            stack[-i: -1] = [IF_STMT(expr, suite, elif_, else_)]
 
     def consume(self):
         stack = self.stack
