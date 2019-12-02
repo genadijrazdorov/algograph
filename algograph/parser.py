@@ -70,8 +70,6 @@ def reduce_by_rule(rule):
         def _reduce(method):
             @functools.wraps(method)
             def wrapper(self):
-                ## if self.stack[-len(rule):] == rule:
-                ##     method(self)
                 for i in range(len(rule)):
                     r = rule[-i - 1]
                     t = self.stack[-i - 1]
