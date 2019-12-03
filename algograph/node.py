@@ -17,6 +17,9 @@ class Node(abc.MutableMapping):
     def __eq__(self, other):
         return self.name == other.name
 
+    def __lt__(self, other):
+        return self.name < other.name
+
     def __delitem__(self, child):
         del self.children[child]
 
