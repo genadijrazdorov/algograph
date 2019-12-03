@@ -34,3 +34,30 @@ class Node(abc.MutableMapping):
 
     def __setitem__(self, child, label):
         self.children[child] = label
+
+
+class Graph:
+    def __init__(self, root=None):
+        self.root = root
+
+    def __iter__(self):
+        yield self.root
+        for child in self.root:
+            yield child
+            yield from child
+
+    def __eq__(self, other):
+        if self.root != other.root:
+            return False
+
+        if self.root.children != other.root.children:
+            return False
+
+        S = sorted(self.root)
+        O = sorted(other.root)
+
+        for s, o in zip(S, O):
+            if Graph(s) != Graph(o):
+                return False
+
+        return True
