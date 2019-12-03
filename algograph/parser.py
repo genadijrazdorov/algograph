@@ -1,6 +1,6 @@
 from .lexer import *
 from .token import TOKEN, _DTOKEN
-from .node import Node as N
+from .node import Node as N, Graph
 
 import functools
 
@@ -209,25 +209,50 @@ class Parser:
 
         elif isinstance(stack[2], IF_STMT):
             node = N(stack[2].EXPR.ID.value)
-            yes = N(stack[2].SUITE.tokens[0])
-            node[yes] = True
             last[node] = None
             last = node
+
+            yes = N(stack[2].SUITE.tokens[0].ID.value)
+            node[yes] = True
+
+            elif_ = stack[2].ELIF
+            if elif_:
+                for o, s in elif_:
+                    o = N(o.ID.value)
+                    s = N(s.tokens[0].ID.value)
+                    node[o] = False
+                    o[s] = True
+                    node = o
+
+            no = stack[2].ELSE
+            if no:
+                no = N(no.tokens[0].ID.value)
+                node[no] = False
+
             del stack[2]
 
         elif isinstance(stack[2], SWITCH):
             node = N(stack[2].IS_EXPR.ID.value)
             last[node] = None
-            o = N(stack[2].IS_EXPR.EXPR.ID.value)
-            s = N(stack[2].SUITE.tokens[0].ID.value)
-            node[s], n = o, s
-            for o, s in stack[2].ELIF:
-                o = o.EXPR.ID.value
-                s = N(s.tokens[0].ID.value)
-                n[s], n = o, s
-            node[stack[2].ELSE.tokens[0].ID.value] = False
             last = node
+
+            o = stack[2].IS_EXPR.EXPR.ID.value
+            s = N(stack[2].SUITE.tokens[0].ID.value)
+            node[s] = o
+            elif_ = stack[2].ELIF
+            if elif_:
+                for o, s in elif_:
+                    o = o.EXPR.ID.value
+                    s = N(s.tokens[0].ID.value)
+                    node[s] = o
+
+            else_ = stack[2].ELSE
+            if else_:
+                node[N(else_.tokens[0].ID.value)] = False
+
             del stack[2]
+
+        self.last = last
 
 
     def parse(self):
@@ -247,4 +272,4 @@ class Parser:
 
         del stack[:2], stack[-1]
         assert not stack
-        return next(iter(top))
+        return Graph(next(iter(top)))

@@ -1,5 +1,5 @@
 from algograph.parser import Parser
-from algograph.node import Node as N
+from algograph.node import Node as N, Graph as G
 
 import pytest
 
@@ -15,7 +15,7 @@ def parse(doc):
 
 @pytest.fixture
 def start_end():
-    return 'start; end', N('start', {N('end'): None})
+    return 'start; end', G(N('start', {N('end'): None}))
 
 
 class TestParser:
@@ -27,7 +27,7 @@ class TestParser:
         assert parse('''
                      | if q:
                      |   y
-                     ''') == N('q', {N('y'): True})
+                     ''') == G(N('q', {N('y'): True}))
 
     def test_suite_error(self):
         with pytest.raises(SyntaxError):
@@ -51,7 +51,7 @@ class TestParser:
                      |   y
                      | else:
                      |   n
-                     ''') == N('q', {N('y'): True, N('n'): False})
+                     ''') == G(N('q', {N('y'): True, N('n'): False}))
 
     def test_if_elif_elif_else(self):
         assert parse('''
@@ -64,7 +64,7 @@ class TestParser:
                      | else:
                      |   n
                      ''') == \
-                    N('q', {
+                    G(N('q', {
                         N('y'): True,
                         N('q2', {
                             N('y2'): True,
@@ -73,7 +73,7 @@ class TestParser:
                                 N('n'): False
                             }): False
                         }): False
-                    })
+                    }))
 
     def test_if_is(self):
         assert parse('''
@@ -86,9 +86,9 @@ class TestParser:
                      | else:
                      |   n
                      ''') == \
-                    N('s', {
+                    G(N('s', {
                         N('y1'): 'o1',
                         N('y2'): 'o2',
                         N('y3'): 'o3',
                         N('n'): False
-                    })
+                    }))
