@@ -19,6 +19,9 @@ class TestNode:
         assert start_end == N('start')
         assert start_end != N('end')
 
+    def test__lt__(self, start_end):
+        assert start_end < N('z')
+
     def test__len__(self, start_end):
         assert len(start_end) == 1
 
