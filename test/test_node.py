@@ -1,4 +1,4 @@
-from algograph.node import Node as N
+from algograph.node import Node as N, Graph
 
 import pytest
 
@@ -42,3 +42,17 @@ class TestNode:
 
     def test__repr__(self, start_end):
         assert repr(start_end) == "<Node 'start'>"
+
+
+class TestGraph:
+    def test__iter__(self, start_end):
+        assert list(Graph(start_end)) == [N('start'), N('end')]
+
+    def test__eq__(self, start_end):
+        assert Graph(start_end) == Graph(N('start', {N('end'): None}))
+        assert Graph(start_end) != Graph(N('start'))
+        assert Graph(start_end) != Graph(N('start', {N('end', {N('extra'): None}): None}))
+        assert Graph(start_end) != Graph(N('start', {N('end'): True}))
+
+        assert Graph(N('q', {N('y'): True, N('n'): False})) == \
+            Graph(N('q', {N('n'): False, N('y'): True}))
