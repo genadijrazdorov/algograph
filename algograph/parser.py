@@ -120,7 +120,7 @@ class Parser:
         # DEDENT
         self._SUITE()
 
-        # DEDENT ~{ELIF, ELSE}
+        # SUITE ~{ELIF, ELSE}
         self._IFSWITCH()
 
 
