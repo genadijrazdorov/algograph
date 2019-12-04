@@ -1,4 +1,5 @@
-from .algograph import algo2dot
+from algograph.io.dot import DOT
+from algograph.parser import Parser
 
 import argparse
 
@@ -31,4 +32,4 @@ def script():
     args = parser.parse_args()
 
     with open(args.algorithm.name[:-2] + 'dot', 'w') as outfh:
-        outfh.write(algo2dot(args.algorithm.read()))
+        outfh.write(DOT(Parser(args.algorithm.read()).parse()).encode())
