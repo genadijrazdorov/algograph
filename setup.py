@@ -154,7 +154,7 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    ## install_requires=['peppercorn'],  # Optional
+    # install_requires=['sly'],  # Optional
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -166,7 +166,6 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': ['check-manifest'],
-        ## 'test': ['coverage'],
         'test': ['pytest-cov'],
         'CI': ['codecov']
     },
@@ -196,7 +195,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'algograph=algograph:script',
+            'algograph=algograph.script:script',
         ],
     },
 
