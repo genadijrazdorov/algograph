@@ -31,5 +31,14 @@ def script():
 
     args = parser.parse_args()
 
-    with open(args.algorithm.name[:-2] + 'dot', 'w') as outfh:
-        outfh.write(DOT(Parser(args.algorithm.read()).parse()).encode())
+    name = args.algorithm.name
+    if '.' in name:
+        name, ext = name.rsplit('.', 1)
+
+    graph = Parser(args.algorithm.read()).parse()
+    dot = DOT(graph).encode()
+    if name == '<stdin>':
+        print(dot)
+    else:
+        with open(name + 'dot', 'w') as outfh:
+            outfh.write(dot)
