@@ -212,22 +212,24 @@ class Parser:
             last[node] = None
             last = node
 
+            not_ = stack[2].EXPR.NOT
             yes = N(stack[2].SUITE.tokens[0].ID.value)
-            node[yes] = True
+            node[yes] = not not_
 
             elif_ = stack[2].ELIF
             if elif_:
                 for o, s in elif_:
+                    not_ = o.NOT
                     o = N(o.ID.value)
+                    node[o] = not_
                     s = N(s.tokens[0].ID.value)
-                    node[o] = False
-                    o[s] = True
+                    o[s] = not not_
                     node = o
 
             no = stack[2].ELSE
             if no:
                 no = N(no.tokens[0].ID.value)
-                node[no] = False
+                node[no] = not_
 
             del stack[2]
 

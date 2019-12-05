@@ -56,7 +56,7 @@ class TestLexer:
         assert tokenize('''
                 | if q is a:
                 |   one
-                | elif q is b:
+                | elif q is not b:
                 |   two
                 | else:
                 |   three
@@ -75,6 +75,7 @@ class TestLexer:
                 ELIF(),
                 ID('q'),
                 IS(),
+                NOT(),
                 ID('b'),
                 LITERAL(':'),
                 NEWLINE(),
