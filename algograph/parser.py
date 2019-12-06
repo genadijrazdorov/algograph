@@ -173,6 +173,26 @@ class Parser:
         token = SUITE(*stack[-i + 1: -1])
         stack[-i:] = [token]
 
+    @reduce_by_rule([DEDENT])
+    def _SUITE(self):
+        stack = self.stack
+        while True:
+            for i in range(len(stack)):
+                i += 1
+                if isinstance(stack[-i], INDENT):
+                    break
+            else:
+                raise SyntaxError
+
+            token = SUITE(*stack[-i + 1: -1])
+            dedent = stack[-1].value
+            indent = stack[-i].value
+            stack[-i:] = [token]
+            if dedent == indent:
+                break
+            else:
+                stack.append(DEDENT(dedent - indent))
+
     @reduce_by_rule
     def _IFSWITCH(self):
         stack = self.stack
