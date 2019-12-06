@@ -89,6 +89,13 @@ class Parser:
         self.algorithm = algorithm
         self.tokens = Lexer(algorithm).tokenize()
 
+    def __init__(self, algorithm=None, tokens=None):
+        self.algorithm = algorithm
+        if algorithm is None:
+            self.tokens = tokens
+        else:
+            self.tokens = Lexer(algorithm).tokenize()
+
     def reduce(self):
         '''
             BRANCH  = IF_STMT | SWITCH
@@ -213,7 +220,8 @@ class Parser:
             last = node
 
             not_ = stack[2].EXPR.NOT
-            yes = N(stack[2].SUITE.tokens[0].ID.value)
+            ## yes = N(stack[2].SUITE.tokens[0].ID.value)
+            yes = Parser(None, stack[2].SUITE.tokens).parse().root
             node[yes] = not not_
 
             elif_ = stack[2].ELIF
@@ -222,13 +230,15 @@ class Parser:
                     not_ = o.NOT
                     o = N(o.ID.value)
                     node[o] = not_
-                    s = N(s.tokens[0].ID.value)
+                    ## s = N(s.tokens[0].ID.value)
+                    s = Parser(None, s.tokens).parse().root
                     o[s] = not not_
                     node = o
 
             no = stack[2].ELSE
             if no:
-                no = N(no.tokens[0].ID.value)
+                ## no = N(no.tokens[0].ID.value)
+                no = Parser(None, no.tokens).parse().root
                 node[no] = not_
 
             del stack[2]
