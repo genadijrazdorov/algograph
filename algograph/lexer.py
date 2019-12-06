@@ -64,10 +64,10 @@ class Lexer:
         old, self.indent = self.indent, indent
 
         if indent > old:
-            yield INDENT(indent)
+            yield INDENT(indent - old)
 
         elif indent < old:
-            yield DEDENT(indent)
+            yield DEDENT(old - indent)
 
     def ignore(self, value):
         return []
