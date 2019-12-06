@@ -29,6 +29,13 @@ class TestParser:
                      |   y
                      ''') == G(N('q', {N('y'): True}))
 
+    def test_complex_branching(self):
+        assert parse('''
+                     | if q:
+                     |   first
+                     |   second
+                     ''') == G(N('q', {N('first', {N('second'): None}): True}))
+
     def test_if_not(self):
         assert parse('''
                      | if not q:
