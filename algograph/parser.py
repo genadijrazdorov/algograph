@@ -85,10 +85,6 @@ def reduce_by_rule(rule):
 
 
 class Parser:
-    def __init__(self, algorithm):
-        self.algorithm = algorithm
-        self.tokens = Lexer(algorithm).tokenize()
-
     def __init__(self, algorithm=None, tokens=None):
         self.algorithm = algorithm
         if algorithm is None:
