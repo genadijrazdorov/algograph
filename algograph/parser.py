@@ -1,45 +1,64 @@
 from .lexer import *
-from .token import TOKEN, _DTOKEN
+from .token import TOKEN
 from .node import Node as N, Graph
 
 import functools
 
+
 NEWLINE = NEWLINE()
-IS = IS()
-NOT = NOT()
-ELSE = ELSE()
-IF = IF()
-ELIF = ELIF()
+IS = KEYWORD('is')
+NOT = KEYWORD('not')
+ELSE = KEYWORD('else')
+IF = KEYWORD('if')
+ELIF = KEYWORD('elif')
 
 SEMI = LITERAL(';')
 COLON = LITERAL(':')
 
 
-class STMT(_DTOKEN):
+class RULE:
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    def __init__(self, *parts):
+        self.parts = parts
+
+    def __eq__(self, other):
+        if isinstance(other, RULE):
+            return (self.name, self.parts) == (other.name, other.parts)
+        else:
+            return NotImplemented
+
+    def __repr__(self):
+        return "{s.name}{s.parts}".format(s=self)
+
+
+class STMT(RULE):
     def __init__(self, id_):
         super().__init__(id_)
         self.ID = id_
 
 
-class EXPR(_DTOKEN):
+class EXPR(RULE):
     def __init__(self, id_, not_=False):
         super().__init__(id_, not_)
         self.ID = id_
         self.NOT = not_
 
 
-class IS_EXPR(_DTOKEN):
+class IS_EXPR(RULE):
     def __init__(self, id_, expr):
         super().__init__(id_, expr)
         self.ID = id_
         self.EXPR = expr
 
 
-class SUITE(_DTOKEN):
+class SUITE(RULE):
     pass
 
 
-class SWITCH(_DTOKEN):
+class SWITCH(RULE):
     def __init__(self, is_expr, suite, elif_=None, else_=None):
         super().__init__(is_expr, suite, elif_, else_)
         self.IS_EXPR = is_expr
@@ -48,7 +67,7 @@ class SWITCH(_DTOKEN):
         self.ELSE = else_
 
 
-class IF_STMT(_DTOKEN):
+class IF_STMT(RULE):
     def __init__(self, expr, suite, elif_=None, else_=None):
         super().__init__(expr, suite, elif_, else_)
         self.EXPR = expr
@@ -143,7 +162,7 @@ class Parser:
         token = EXPR(id_, not_)
         stack[-3 - not_:] = [token]
 
-    @reduce_by_rule([ID, NEWLINE])
+    @reduce_by_rule([IDENTIFIER, NEWLINE])
     def _STMT(self):
         stack = self.stack
         token = STMT(stack[-2])
@@ -221,8 +240,7 @@ class Parser:
             last = node
 
             not_ = stack[2].EXPR.NOT
-            ## yes = N(stack[2].SUITE.tokens[0].ID.value)
-            yes = Parser(None, stack[2].SUITE.tokens).parse().root
+            yes = Parser(tokens=stack[2].SUITE.parts).parse().root
             node[yes] = not not_
 
             elif_ = stack[2].ELIF
@@ -231,15 +249,13 @@ class Parser:
                     not_ = o.NOT
                     o = N(o.ID.value)
                     node[o] = not_
-                    ## s = N(s.tokens[0].ID.value)
-                    s = Parser(None, s.tokens).parse().root
+                    s = Parser(tokens=s.parts).parse().root
                     o[s] = not not_
                     node = o
 
             no = stack[2].ELSE
             if no:
-                ## no = N(no.tokens[0].ID.value)
-                no = Parser(None, no.tokens).parse().root
+                no = Parser(tokens=no.parts).parse().root
                 node[no] = not_
 
             del stack[2]
@@ -250,18 +266,19 @@ class Parser:
             last = node
 
             o = stack[2].IS_EXPR.EXPR.ID.value
-            s = N(stack[2].SUITE.tokens[0].ID.value)
+            s = Parser(tokens=stack[2].SUITE.parts).parse().root
             node[s] = o
             elif_ = stack[2].ELIF
             if elif_:
                 for o, s in elif_:
                     o = o.EXPR.ID.value
-                    s = N(s.tokens[0].ID.value)
+                    s = Parser(tokens=s.parts).parse().root
                     node[s] = o
 
             else_ = stack[2].ELSE
             if else_:
-                node[N(else_.tokens[0].ID.value)] = False
+                no = Parser(tokens=else_.parts).parse().root
+                node[no] = False
 
             del stack[2]
 

@@ -1,52 +1,6 @@
-from .token import TOKEN, _VTOKEN
+from .token import *
 
 import re
-
-__all__ = 'Lexer IF IS NOT ELIF ELSE ID LITERAL NEWLINE INDENT DEDENT IGNORE'.split()
-
-
-class IF(TOKEN):
-    regex = r'\bif\b'
-
-
-class IS(TOKEN):
-    regex = r'\bis\b'
-
-
-class NOT(TOKEN):
-    regex = r'\bnot\b'
-
-
-class ELIF(TOKEN):
-    regex = r'\belif\b'
-
-
-class ELSE(TOKEN):
-    regex = r'\belse\b'
-
-
-class ID(_VTOKEN):
-    regex = r'[a-zA-Z_][a-zA-Z0-9_]*'
-
-
-class LITERAL(_VTOKEN):
-    regex = r'[:;]'
-
-
-class NEWLINE(TOKEN):
-    regex = r'\n+\s*'
-
-
-class INDENT(_VTOKEN):
-    pass
-
-
-class DEDENT(_VTOKEN):
-    pass
-
-
-class IGNORE(_VTOKEN):
-    regex = r'\s+|#.*'
 
 
 class Lexer:

@@ -1,12 +1,34 @@
+__all__ = '''
+    TOKEN
+    KEYWORD
+    IDENTIFIER
+    LITERAL
+    NEWLINE
+    INDENT
+    DEDENT
+    IGNORE
+'''.split()
+
+
 class TOKEN:
+    '''a string with lexical meaning
+
+    > A lexical token or simply token is a string with an assigned and thus
+    identified meaning. (Wikipedia)
+
+    '''
     tokens = {}
     regex = None
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+
     def __init__(self, value=None):
-        super().__init__()
+        self.value = value
 
     def __hash__(self):
-        return hash(self.__class__)
+        return hash((self.name, self.value))
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -14,40 +36,45 @@ class TOKEN:
             cls.tokens[cls.__name__] = cls
 
     def __repr__(self):
-        return '{}()'.format(self.__class__.__name__)
+        if self.value is None:
+            return '{s.name}()'.format(s=self)
+        else:
+            return "{s.name}({s.value!r})".format(s=self)
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__)
+        try:
+            return (self.name, self.value) == (other.name, other.value)
+
+        except AttributeError:
+            return NotImplemented
 
 
-class _VTOKEN(TOKEN):
-    def __init__(self, value=None):
-        super().__init__()
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __repr__(self):
-        return "{s.__class__.__name__}('{s.value}')".format(s=self)
-
-    def __eq__(self, other):
-        return super().__eq__(other) and self.value == other.value
+class KEYWORD(TOKEN):
+    regex = r'\b(?:' + r'|'.join('if is not elif else'.split()) + r')'
 
 
-class _DTOKEN(TOKEN):
-    def __init__(self, *tokens):
-        super().__init__()
-        self.tokens = tokens
+class IDENTIFIER(TOKEN):
+    regex = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
-    def __hash__(self):
-        return hash(self.tokens)
 
-    def __repr__(self):
-        tokens = ', '.join(str(t) for t in self.tokens)
-        return "{s.__class__.__name__}({t})".format(s=self, t=tokens)
+class LITERAL(TOKEN):
+    regex = r'[:;]'
 
-    def __eq__(self, other):
-        return super().__eq__(other) and self.tokens == other.tokens
+
+class NEWLINE(TOKEN):
+    regex = r'\n+\s*'
+
+
+class INDENT(TOKEN):
+    pass
+
+
+class DEDENT(TOKEN):
+    pass
+
+
+class IGNORE(TOKEN):
+    regex = r'\s+|#.*'
+
 
 
