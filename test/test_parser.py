@@ -123,7 +123,8 @@ class TestParser:
     def test_if_is(self):
         assert parse('''
                      | if s is o1:
-                     |   y1
+                     |   y10
+                     |   y11
                      | elif s is o2:
                      |   y2
                      | elif s is o3:
@@ -132,7 +133,7 @@ class TestParser:
                      |   n
                      ''') == \
                     G(N('s', {
-                        N('y1'): 'o1',
+                        N('y10', {N('y11'): None}): 'o1',
                         N('y2'): 'o2',
                         N('y3'): 'o3',
                         N('n'): False
