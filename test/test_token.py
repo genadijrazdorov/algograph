@@ -31,6 +31,9 @@ def expr():
 
 
 class TestTOKEN:
+    def test_name(self, if_):
+        assert if_().name == 'IF'
+
     def test__eq__(self, if_):
         assert if_() == if_()
         assert if_() != TOKEN()
