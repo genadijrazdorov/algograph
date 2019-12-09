@@ -29,6 +29,21 @@ class TestParser:
                      |   y
                      ''') == G(N('q', {N('y'): True}))
 
+    def test_multistatemnt_suite(self):
+        assert parse('''
+                     | if q:
+                     |   first
+                     |   second
+                     ''') == G(N('q', {N('first', {N('second'): None}): True}))
+
+    def test_multilevel_suite(self):
+        assert parse('''
+                     | if q:
+                     |   if q2:
+                     |     first
+                     |     second
+                     ''') == G(N('q', {N('q2', {N('first', {N('second'): None}): True}): True}))
+
     def test_if_not(self):
         assert parse('''
                      | if not q:

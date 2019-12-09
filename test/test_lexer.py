@@ -47,7 +47,7 @@ class TestLexer:
                 INDENT(2),
                 ID('y'),
                 NEWLINE(),
-                DEDENT(0),
+                DEDENT(2),
                 ID('end'),
                 NEWLINE()
         ]
@@ -71,7 +71,7 @@ class TestLexer:
                 INDENT(2),
                 ID('one'),
                 NEWLINE(),
-                DEDENT(0),
+                DEDENT(2),
                 ELIF(),
                 ID('q'),
                 IS(),
@@ -82,14 +82,14 @@ class TestLexer:
                 INDENT(2),
                 ID('two'),
                 NEWLINE(),
-                DEDENT(0),
+                DEDENT(2),
                 ELSE(),
                 LITERAL(':'),
                 NEWLINE(),
                 INDENT(2),
                 ID('three'),
                 NEWLINE(),
-                DEDENT(0),
+                DEDENT(2),
                 ID('end'),
                 NEWLINE()
         ]
