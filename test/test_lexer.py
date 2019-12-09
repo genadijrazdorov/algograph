@@ -14,9 +14,9 @@ def tokenize(doc):
 class TestLexer:
     def test_start_end(self):
         assert tokenize('| start; end') == [
-            ID('start'),
+            IDENTIFIER('start'),
             LITERAL(';'),
-            ID('end'),
+            IDENTIFIER('end'),
             NEWLINE()
         ]
 
@@ -28,9 +28,9 @@ class TestLexer:
 
     def test_newline(self):
         assert tokenize('| start\n|\n| end') == [
-            ID('start'),
+            IDENTIFIER('start'),
             NEWLINE(),
-            ID('end'),
+            IDENTIFIER('end'),
             NEWLINE()
         ]
 
@@ -40,15 +40,15 @@ class TestLexer:
                 |   y
                 | end
             ''') == [
-                IF(),
-                ID('q'),
+                KEYWORD('if'),
+                IDENTIFIER('q'),
                 LITERAL(':'),
                 NEWLINE(),
                 INDENT(2),
-                ID('y'),
+                IDENTIFIER('y'),
                 NEWLINE(),
                 DEDENT(2),
-                ID('end'),
+                IDENTIFIER('end'),
                 NEWLINE()
         ]
 
@@ -62,34 +62,34 @@ class TestLexer:
                 |   three
                 | end
             ''') == [
-                IF(),
-                ID('q'),
-                IS(),
-                ID('a'),
+                KEYWORD('if'),
+                IDENTIFIER('q'),
+                KEYWORD('is'),
+                IDENTIFIER('a'),
                 LITERAL(':'),
                 NEWLINE(),
                 INDENT(2),
-                ID('one'),
+                IDENTIFIER('one'),
                 NEWLINE(),
                 DEDENT(2),
-                ELIF(),
-                ID('q'),
-                IS(),
-                NOT(),
-                ID('b'),
+                KEYWORD('elif'),
+                IDENTIFIER('q'),
+                KEYWORD('is'),
+                KEYWORD('not'),
+                IDENTIFIER('b'),
                 LITERAL(':'),
                 NEWLINE(),
                 INDENT(2),
-                ID('two'),
+                IDENTIFIER('two'),
                 NEWLINE(),
                 DEDENT(2),
-                ELSE(),
+                KEYWORD('else'),
                 LITERAL(':'),
                 NEWLINE(),
                 INDENT(2),
-                ID('three'),
+                IDENTIFIER('three'),
                 NEWLINE(),
                 DEDENT(2),
-                ID('end'),
+                IDENTIFIER('end'),
                 NEWLINE()
         ]
