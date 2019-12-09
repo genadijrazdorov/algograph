@@ -240,7 +240,7 @@ class Parser:
             last = node
 
             not_ = stack[2].EXPR.NOT
-            yes = Parser(None, stack[2].SUITE.parts).parse().root
+            yes = Parser(tokens=stack[2].SUITE.parts).parse().root
             node[yes] = not not_
 
             elif_ = stack[2].ELIF
@@ -249,13 +249,13 @@ class Parser:
                     not_ = o.NOT
                     o = N(o.ID.value)
                     node[o] = not_
-                    s = Parser(None, s.parts).parse().root
+                    s = Parser(tokens=s.parts).parse().root
                     o[s] = not not_
                     node = o
 
             no = stack[2].ELSE
             if no:
-                no = Parser(None, no.parts).parse().root
+                no = Parser(tokens=no.parts).parse().root
                 node[no] = not_
 
             del stack[2]
@@ -266,18 +266,18 @@ class Parser:
             last = node
 
             o = stack[2].IS_EXPR.EXPR.ID.value
-            s = Parser(None, stack[2].SUITE.parts).parse().root
+            s = Parser(tokens=stack[2].SUITE.parts).parse().root
             node[s] = o
             elif_ = stack[2].ELIF
             if elif_:
                 for o, s in elif_:
                     o = o.EXPR.ID.value
-                    s = Parser(None, s.parts).parse().root
+                    s = Parser(tokens=s.parts).parse().root
                     node[s] = o
 
             else_ = stack[2].ELSE
             if else_:
-                no = Parser(None, else_.parts).parse().root
+                no = Parser(tokens=else_.parts).parse().root
                 node[no] = False
 
             del stack[2]
