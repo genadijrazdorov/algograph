@@ -1,45 +1,64 @@
 from .lexer import *
-from .token import TOKEN, _DTOKEN
+from .token import TOKEN
 from .node import Node as N, Graph
 
 import functools
 
+
 NEWLINE = NEWLINE()
-IS = IS()
-NOT = NOT()
-ELSE = ELSE()
-IF = IF()
-ELIF = ELIF()
+IS = KEYWORD('is')
+NOT = KEYWORD('not')
+ELSE = KEYWORD('else')
+IF = KEYWORD('if')
+ELIF = KEYWORD('elif')
 
 SEMI = LITERAL(';')
 COLON = LITERAL(':')
 
 
-class STMT(_DTOKEN):
+class RULE:
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    def __init__(self, *parts):
+        self.parts = parts
+
+    def __eq__(self, other):
+        if isinstance(other, RULE):
+            return (self.name, self.parts) == (other.name, other.parts)
+        else:
+            return NotImplemented
+
+    def __repr__(self):
+        return "{s.name}{s.parts}".format(s=self)
+
+
+class STMT(RULE):
     def __init__(self, id_):
         super().__init__(id_)
         self.ID = id_
 
 
-class EXPR(_DTOKEN):
+class EXPR(RULE):
     def __init__(self, id_, not_=False):
         super().__init__(id_, not_)
         self.ID = id_
         self.NOT = not_
 
 
-class IS_EXPR(_DTOKEN):
+class IS_EXPR(RULE):
     def __init__(self, id_, expr):
         super().__init__(id_, expr)
         self.ID = id_
         self.EXPR = expr
 
 
-class SUITE(_DTOKEN):
+class SUITE(RULE):
     pass
 
 
-class SWITCH(_DTOKEN):
+class SWITCH(RULE):
     def __init__(self, is_expr, suite, elif_=None, else_=None):
         super().__init__(is_expr, suite, elif_, else_)
         self.IS_EXPR = is_expr
@@ -48,7 +67,7 @@ class SWITCH(_DTOKEN):
         self.ELSE = else_
 
 
-class IF_STMT(_DTOKEN):
+class IF_STMT(RULE):
     def __init__(self, expr, suite, elif_=None, else_=None):
         super().__init__(expr, suite, elif_, else_)
         self.EXPR = expr
@@ -143,7 +162,7 @@ class Parser:
         token = EXPR(id_, not_)
         stack[-3 - not_:] = [token]
 
-    @reduce_by_rule([ID, NEWLINE])
+    @reduce_by_rule([IDENTIFIER, NEWLINE])
     def _STMT(self):
         stack = self.stack
         token = STMT(stack[-2])

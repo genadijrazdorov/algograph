@@ -1,5 +1,8 @@
-from algograph.parser import Parser
+from algograph.token import NEWLINE
+from algograph.parser import Parser, RULE
 from algograph.node import Node as N, Graph as G
+
+from .test_token import id_
 
 import pytest
 
@@ -16,6 +19,27 @@ def parse(doc):
 @pytest.fixture
 def start_end():
     return 'start; end', G(N('start', {N('end'): None}))
+
+
+@pytest.fixture
+def expr():
+    class EXPR(RULE):
+        def __init__(self, id_, not_=False):
+            super().__init__(id_, not_)
+            self.ID = id_
+            self.NOT = not_
+
+    return EXPR
+
+
+class Test_RULE:
+    def test__eq__(self, expr, id_):
+        assert expr(id_('proba')) == expr(id_('proba'))
+        assert expr(id_('proba')) != expr(id_('p'))
+        assert expr(id_('proba')) != NEWLINE()
+
+    def test__repr__(self, expr, id_):
+        assert repr(expr(id_('proba'))) == "EXPR(ID('proba'), False)"
 
 
 class TestParser:
