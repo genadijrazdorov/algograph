@@ -2,6 +2,10 @@ class TOKEN:
     tokens = {}
     regex = None
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+
     def __init__(self, value=None):
         super().__init__()
 
