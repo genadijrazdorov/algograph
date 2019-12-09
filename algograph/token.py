@@ -50,7 +50,13 @@ class TOKEN:
 
 
 class KEYWORD(TOKEN):
-    regex = r'\b(?:' + r'|'.join('if is not elif else'.split()) + r')'
+    regex = r'\b(?:' + r'|'.join('''
+        if
+        is
+        not
+        elif
+        else
+    '''.strip().split()) + r')'
 
 
 class IDENTIFIER(TOKEN):
