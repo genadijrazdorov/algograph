@@ -1,4 +1,4 @@
-from algograph.script import script, description
+from algograph.script import script, DESCRIPTION
 
 import subprocess
 
@@ -23,11 +23,11 @@ def run(args, input=None, check=True):
 class TestScript:
     def test_help(self):
         result = run('algograph -h')
-        assert description in result.stdout
+        assert DESCRIPTION in result.stdout
 
     def test_usage(self):
         result = run('algograph', check=False)
-        assert 'usage: algograph [-h] algorithm' in result.stderr
+        assert 'usage: algograph [-h] ' in result.stderr
 
     def test_start_end(self):
         result = run('algograph -', input='start; end')
