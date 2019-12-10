@@ -32,3 +32,8 @@ class TestScript:
     def test_start_end(self):
         result = run('algograph -', input='start; end')
         assert result.stdout == 'digraph {\n  start -> end\n}\n'
+
+    def test_graphviz(self):
+        result = run('algograph --to=svg -', input='start; end', check=False)
+        assert '<!-- start -->' in result.stdout
+        assert '<!-- end -->' in result.stdout
