@@ -62,7 +62,8 @@ def script():
         ext = '.dot'
 
     elif args.to == 'svg':
-        process = subprocess.run((PATH_TO_GRAPHVIZ  + r'\dot.bat -Tsvg').split(), input=dot, text=True, capture_output=True)
+        ## process = subprocess.run((PATH_TO_GRAPHVIZ  + r'\dot.bat -Tsvg').split(), input=dot, text=True, capture_output=True)
+        process = subprocess.run('dot -Tsvg'.split(), input=dot, text=True, capture_output=True)
         result = process.stdout
         ext = '.svg'
 
