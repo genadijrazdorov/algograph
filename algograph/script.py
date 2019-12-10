@@ -77,8 +77,5 @@ def script():
         with open(filename, 'w') as outfh:
             outfh.write(result)
 
-    elif name == '<stdin>':
-        print(result)
-
     else:
-        raise Exception
+        print(result)
