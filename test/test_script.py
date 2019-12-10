@@ -47,7 +47,6 @@ class TestScript:
         result = run('algograph -'.split(), input='start; end')
         assert result.stdout == 'digraph {\n  start -> end\n}\n'
 
-    @pytest.mark.xfail(reason='Not working due to graphviz path change')
     def test_graphviz(self):
         result = run('algograph --to=svg -'.split(), input='start; end')
         assert '<!-- start -->' in result.stdout
