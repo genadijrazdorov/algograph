@@ -3,10 +3,20 @@ from algograph.parser import Parser
 
 import argparse
 import subprocess
+import sys
+import pathlib
 
 
 # FIXME: do not hard code this
 PATH_TO_GRAPHVIZ = r'C:\ProgramData\Anaconda3\Library\bin'
+PATH_TO_GRAPHVIZ = r'C:\Program Files (x86)\Graphviz2.38\bin'
+
+if sys.platform == 'win32':
+    DOT_PATH = pathlib.Path(PATH_TO_GRAPHVIZ).joinpath('dot')
+
+elif sys.platform == 'linux':
+    DOT_PATH = pathlib.Path('dot')
+
 
 DESCRIPTION = '''
 An algorithm to graph translator.
@@ -62,8 +72,11 @@ def script():
         ext = '.dot'
 
     elif args.to == 'svg':
-        ## process = subprocess.run((PATH_TO_GRAPHVIZ  + r'\dot.bat -Tsvg').split(), input=dot, text=True, capture_output=True)
-        process = subprocess.run('dot -Tsvg'.split(), input=dot, text=True, capture_output=True)
+        process = subprocess.run(
+            [str(DOT_PATH), '-Tsvg'],
+            input=dot, text=True,
+            capture_output=True
+        )
         result = process.stdout
         ext = '.svg'
 
