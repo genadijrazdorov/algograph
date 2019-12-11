@@ -1,4 +1,8 @@
 language: python
+addons:
+  apt:
+    packages:
+      - graphviz
 install: pip install .[test,CI]
 script:
   - pytest --cov-report=xml --cov=algograph
