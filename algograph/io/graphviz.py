@@ -5,10 +5,10 @@ import sys
 import pathlib
 import shlex
 
-PATH_TO_GRAPHVIZ = (
+PATH_TO_GRAPHVIZ = ';'.join((
     r'C:\Program Files (x86)\Graphviz2.38\bin',
     r'C:\ProgramData\Anaconda3\Library\bin'
-)
+))
 
 
 class Graphviz:
@@ -20,16 +20,13 @@ class Graphviz:
         args = [shlex.quote(arg) for arg in args]
         process = subprocess.run(
             # FIXME: how to make it universal win/lin
-            ' '.join(['/usr/bin/env &&', 'dot', '-Tcanon', *args]),
-            #'set',
+            ' '.join(['dot', '-Tcanon', *args]),
             shell=True,
             capture_output=True,
             input=DOT(self.graph).encode(),
             text=True,
             check=False,
-            #env=dict(PATH=';'.join(str(pathlib.Path(path)) for path in PATH_TO_GRAPHVIZ))
-            #env=dict(PATH=';'.join(PATH_TO_GRAPHVIZ), TERM='cmd')
-            env=dict(PATH=';'.join(PATH_TO_GRAPHVIZ))
+            env=dict(PATH=PATH_TO_GRAPHVIZ if sys.platform == 'win32' else None)
         )
         return process
 
