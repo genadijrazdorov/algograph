@@ -26,7 +26,7 @@ class Graphviz:
             input=DOT(self.graph).encode(),
             text=True,
             check=False,
-            env=dict(PATH=PATH_TO_GRAPHVIZ if sys.platform == 'win32' else None)
+            env=dict(PATH=PATH_TO_GRAPHVIZ) if sys.platform == 'win32' else None
         )
         return process
 
