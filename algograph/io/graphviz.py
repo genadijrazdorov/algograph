@@ -20,7 +20,7 @@ class Graphviz:
         args = [shlex.quote(arg) for arg in args]
         process = subprocess.run(
             # FIXME: how to make it universal win/lin
-            ' '.join(['env &&', 'dot', '-Tcanon', *args]),
+            ' '.join(['/usr/bin/env &&', 'dot', '-Tcanon', *args]),
             #'set',
             shell=True,
             capture_output=True,
