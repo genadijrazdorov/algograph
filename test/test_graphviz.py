@@ -16,6 +16,7 @@ class TestGraphviz:
     def test_run(self):
         graph = G(N('start', {N('end'): None}))
         result = Gv(graph).run()
+        assert result.stdout
         result = equalize(result.stdout)
         assert result == equalize(r'''
             digraph {
