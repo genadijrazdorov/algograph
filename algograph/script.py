@@ -1,21 +1,8 @@
 from algograph.io.dot import DOT
+from algograph.io.graphviz import Graphviz
 from algograph.parser import Parser
 
 import argparse
-import subprocess
-import sys
-import pathlib
-
-
-# FIXME: do not hard code this
-PATH_TO_GRAPHVIZ = r'C:\ProgramData\Anaconda3\Library\bin'
-PATH_TO_GRAPHVIZ = r'C:\Program Files (x86)\Graphviz2.38\bin'
-
-if sys.platform == 'win32':
-    DOT_PATH = pathlib.Path(PATH_TO_GRAPHVIZ).joinpath('dot')
-
-elif sys.platform == 'linux':
-    DOT_PATH = pathlib.Path('dot')
 
 
 DESCRIPTION = '''
@@ -65,20 +52,14 @@ def script():
         name, ext = name.rsplit('.', 1)
 
     graph = Parser(args.algorithm.read()).parse()
-    dot = DOT(graph).encode()
 
     if args.to == 'dot':
-        result = dot
+        result = DOT(graph).encode()
         ext = '.dot'
 
-    elif args.to == 'svg':
-        process = subprocess.run(
-            [str(DOT_PATH), '-Tsvg'],
-            input=dot, text=True,
-            capture_output=True
-        )
-        result = process.stdout
-        ext = '.svg'
+    else:
+        gv = Graphviz(graph)
+        result = gv.run(format=args.to)
 
     filename = None
     if args.out:
