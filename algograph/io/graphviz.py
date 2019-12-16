@@ -3,6 +3,7 @@ from .dot import DOT
 import subprocess
 import sys
 import pathlib
+import xml.etree.ElementTree as ET
 
 
 GRAPHVIZ_PATH = (
@@ -68,4 +69,6 @@ class Graphviz:
 
         return self.process.stdout
 
+    def tosvg(self):
+        return ET.fromstring(self.run())
 

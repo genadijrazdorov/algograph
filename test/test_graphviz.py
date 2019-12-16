@@ -2,6 +2,7 @@ from algograph.io.graphviz import Graphviz as Gv
 from algograph.node import Graph as G, Node as N
 
 import pytest
+import xml.etree.ElementTree as ET
 
 
 def equalize(text):
@@ -46,3 +47,9 @@ class TestGraphviz:
 
         with pytest.raises(FileNotFoundError):
             Gv(start_end).run()
+
+    def test_tosvg(self, start_end):
+        svg = Gv(start_end).tosvg()
+
+        assert isinstance(svg, ET.Element)
+        assert svg.tag.endswith('}svg')
