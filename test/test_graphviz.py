@@ -31,3 +31,9 @@ class TestGraphviz:
                 start -> end;
             }
         ''')
+
+    def test_graphviz_not_found(self, start_end, monkeypatch):
+        monkeypatch.setattr(Gv, 'path', [])
+
+        with pytest.raises(FileNotFoundError):
+            Gv(start_end).run()
