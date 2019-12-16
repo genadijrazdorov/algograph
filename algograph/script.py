@@ -29,10 +29,11 @@ def script():
         type=argparse.FileType(),
         help='algorithm file name'
     )
+    formats = Graphviz().formats()
     parser.add_argument(
         '-t', '--to',
         default='dot',
-        help='output format: [%(default)s], svg'
+        help='output format: [%(default)s], {}'.format(', '.join(formats))
     )
     parser.add_argument(
         '-o', '--out',
