@@ -3,6 +3,7 @@ from algograph.node import Graph as G, Node as N
 
 import pytest
 import xml.etree.ElementTree as ET
+import sys
 
 
 def equalize(text):
@@ -42,6 +43,7 @@ class TestGraphviz:
 
         assert "Wrong '?' format" in str(err.value)
 
+    @pytest.mark.skipif(sys.platform != 'win32', reason='Applicabile only on win32 platform')
     def test_graphviz_not_found(self, start_end, monkeypatch):
         monkeypatch.setattr(Gv, 'path', [])
 
