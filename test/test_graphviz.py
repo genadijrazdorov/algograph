@@ -32,6 +32,15 @@ class TestGraphviz:
             }
         ''')
 
+    def test_formats(self):
+        assert Gv().formats()[:2] == 'bmp canon'.split()
+
+    def test_wrong_format(self, start_end):
+        with pytest.raises(ValueError) as err:
+            Gv(start_end).run(format='?')
+
+        assert "Wrong '?' format" in str(err.value)
+
     def test_graphviz_not_found(self, start_end, monkeypatch):
         monkeypatch.setattr(Gv, 'path', [])
 
