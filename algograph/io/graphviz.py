@@ -74,3 +74,6 @@ class Graphviz:
 
     def todot(self):
         return self.run('dot')
+
+    def tojson(self):
+        return self.run('json')

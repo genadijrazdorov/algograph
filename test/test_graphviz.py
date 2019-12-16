@@ -58,3 +58,10 @@ class TestGraphviz:
         dot = Gv(start_end).todot()
         assert 'digraph {' in dot
         assert 'start -> end' in dot
+
+    @pytest.mark.xfail
+    def test_tojson(self, start_end):
+        json = Gv(start_end).tojson()
+
+        assert False
+
