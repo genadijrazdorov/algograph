@@ -8,17 +8,23 @@ def equalize(text):
     return ' '.join(text.strip().split())
 
 
+@pytest.fixture
+def start_end():
+    return G(N('start', {N('end'): None}))
+
+
 class TestGraphviz:
     @pytest.mark.xfail
     def test_fail(self):
         assert False
 
-    def test_run(self):
-        graph = G(N('start', {N('end'): None}))
-        result = Gv(graph).run()
-        if result.returncode:
-            print(result.stderr)
-        result = equalize(result.stdout)
+    def test_empty_graph(self):
+        assert Gv().dot() == ''
+
+    def test_start_end(self, start_end):
+        graph = start_end
+        dot = Gv(graph).run(format='canon')
+        result = equalize(dot)
         assert result == equalize(r'''
             digraph {
                 node [label="\N"];
