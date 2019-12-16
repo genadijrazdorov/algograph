@@ -72,3 +72,5 @@ class Graphviz:
     def tosvg(self):
         return ET.fromstring(self.run())
 
+    def todot(self):
+        return self.run('dot')

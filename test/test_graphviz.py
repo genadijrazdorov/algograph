@@ -53,3 +53,8 @@ class TestGraphviz:
 
         assert isinstance(svg, ET.Element)
         assert svg.tag.endswith('}svg')
+
+    def test_todot(self, start_end):
+        dot = Gv(start_end).todot()
+        assert 'digraph {' in dot
+        assert 'start -> end' in dot
