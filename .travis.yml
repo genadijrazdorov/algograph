@@ -21,8 +21,7 @@ jobs:
       language: shell       # 'language: python' is an error on Travis CI Windows
       before_install:
         # - choco install python --version=3.7.5
-        - wget https://www.python.org/ftp/python/3.7.5/python-3.7.5-amd64.exe
-        - ./python-3.7.5-amd64.exe
+        - wget --quiet https://www.python.org/ftp/python/3.7.5/python-3.7.5-amd64-webinstall.exe && "./python-3.7.5-amd64-webinstall.exe /passive"
         - python -m pip install --upgrade pip
         # - choco install graphviz
         - wget https://graphviz.gitlab.io/_pages/Download/windows/graphviz-2.38.msi
