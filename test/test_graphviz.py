@@ -43,7 +43,8 @@ class TestGraphviz:
 
         assert "Wrong '?' format" in str(err.value)
 
-    @pytest.mark.skipif(sys.platform != 'win32', reason='Applicabile only on win32 platform')
+    # @pytest.mark.skipif(sys.platform != 'win32', reason='Applicabile only on win32 platform')
+    @pytest.mark.xfail
     def test_graphviz_not_found(self, start_end, monkeypatch):
         monkeypatch.setattr(Gv, 'path', [])
 
