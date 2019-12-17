@@ -3,12 +3,25 @@ addons:
   apt:
     packages:
       - graphviz
-install: pip install .[test,CI]
+install: pip3 install --upgrade pip && pip3 install .[test,CI]
 script:
   - pytest --cov-report=xml --cov=algograph
 python:
   - "3.7"
 env:
-  - CODECOV_TOKEN=1253c5d5-15c3-44d1-b19a-1f2b4231be0e
+  - PYTHON_VERSION=3.7
 after_success:
   - codecov
+
+
+language: python            # this works for Linux but is an error on macOS or Windows
+jobs:
+  include:
+    - name: "Python on Linux"
+    - name: "Python on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      before_install:
+        - choco install python --version $PYTHON_VERSION
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
